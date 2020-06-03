@@ -1,3 +1,7 @@
+
+
+
+
 # 							JavaScript基础篇
 
 ## **js组成部分**
@@ -491,6 +495,20 @@ while (i <= 10) {
 }
 ```
 
+## delete关键字
+
+```
+删除:
+var num1 = 10;
+num2 = 20;
+delete num1; 					//把变量1删除
+delete num2; 					//把变量2删除
+console.log(typeof num1); 		// 结果为number  		结果没有被删除
+console.log(typeof num2); 		// 结果为undefined 	隐士全局变量可以被删除
+```
+
+
+
 ## 数组
 
 ```
@@ -685,8 +703,32 @@ console.log("小杨好帅啊");
 只要是看到一个函数作为参数使用了,那么就是回调函数
 函数的参数里可以存储任何类型
 
- 
+function sayHi(fn) {
+	console.log("我好帅");
+	fn(); 					//fn此时是f函数,然后在函数内部调用
+}
+function f() {
+	console.log("我也好帅");
+}
+sayHi(f);
 ```
+
+### 函数作为返回值使用
+
+```
+函数可以作为参数使用,也可以作为返回值使用
+
+function f1() { 					//这里f1调用时返回一个函数
+	console.log("f1函数调用了");
+	return function () { 			//当f1函数被调用,这里就会返回一个值
+		console.log("这是一个函数");
+	};
+}
+var ff = f1(); 						//这里定义一个变量来接收返回值,此时ff就是上面的这个函数里面返回										的函数,ff储存了这个函数,那他就是一个函数就可以调用它
+ff();								//此时变量ff在栈中储存的是这个函数的地址指向,加个括号调用,返回										的结果是内部函数执行的结果
+```
+
+
 
 ## arguments对象
 
@@ -694,8 +736,1162 @@ console.log("小杨好帅啊");
 arguments 			获取用户传入的参数的值
 arguments.length  	获取函数在调用时用户传入参数的个数
 arguments			被当做伪数组使用-----伪数组
+
+arguments---------->可以获取函数调用的时候,传入的参数的长度
+arguments---------->它是一个对象,是一个伪数组
+arguments.length---------->实参的个数
+arguments.[下标]---------->实参的值
 ```
 
 ```
 定义一个函数,如果不确定用户是否传入了参数,或者说不知道用户传进几个参数,没办法计算,但是如果在函数中知道了参数的个数,也知道了每个参数的值,可以使用arguments对象操作数组
 ```
+
+## 作用域
+
+```
+作用域:使用范围
+全局变量:声明的变量是使用var声明的,那么这个变量就是全局变量,全局变量可以在页面的任何位置使用
+全局变量,如果页面不关闭,那么久不会释放,会占空间,消耗内存
+```
+
+```
+局部变量:在函数内部定义的变量就是局部变量,外面不能访问
+除了函数以外,在其他任何地方定义的变量都是全局变量
+```
+
+```
+全局作用域:全局变量的使用范围
+局部作用域:局部变量的使用范围
+```
+
+```
+块级作用域:别的语言里一对大括号就可以看成是一块,在这个区域里定义的变量只能在这个区域中使用
+但是在js中,在这个块级作用域中用var定义的变量,外面也能使用,说明js中没有块级作用域
+```
+
+```
+扩展:隐士全局变量
+声明的变量没有var
+number = 100;
+全局变量是不能被删除的:用var定义的变量
+但是隐士全局变量可以被删除(没意义):没用var定义的变量
+```
+
+## 作用域链
+
+```
+作用域链:
+当我们在使用变量时,如果当前作用域没有变量,就向上级去找,找不到就往上上级找,递增,直到找到为止或者找到最顶端没有这个变量的声明就报错
+
+作用域链的查找顺序是由里向外，js执行代码顺序是自上往下
+
+var num = 50;
+function f1() {
+	// var num = 40;
+	function f2() {
+		// var num = 30;
+		function f3() {
+			// var num = 20;
+			function f4() {
+				// var num = 10;
+				console.log(num);
+			}
+			f4(); //当调用f3的时候,内部执行f4调用
+		}
+		f3(); //当调用f2的时候,内部执行f3调用
+	}
+	f2(); //当调用f1的时候,内部执行f2调用
+}
+f1(); //从最外层开始调用
+```
+
+## 预解析
+
+```
+预解析:在代码执行之前的做的事情
+在执行之前会把变量声明和函数声明提升到当前作用域最顶端并赋值undefined
+预解析中,变量的提升,只会在当前的函数作用域中提升,提升到当前作用域的最上面
+函数中的变量只会提升到函数作用域的中的最前面,不会出去
+预解析中会分段,多对的script标签函数重名,预解析的时候不会冲突
+函数的声明提升会比变量的声明提升优先级高
+
+var num; //下面在打印的时候相当于在这里声明一个变量但是没有赋值,没有赋值的变量值默认为undefined
+console.log(num);
+var num = 10;
+
+f1(); //这里同理:如果把函数调用放在上面,函数在调用时会把函数声明提升到作用域的顶端,并默认赋值 																						undefined
+function f1() {
+	//var num; //下面打印时相当于在这块作用域声明了一个变量num,并赋值undefined
+	console.log(num);
+	var num = 15;
+}
+f1(); //这里输出的是undefined,因为相当于在打印之前声明了一个num但没有赋值,然后默认赋值undefined
+
+--------------------------------------------------------------------------------------
+
+f1();
+console.log(c); //这里可以访问到下面得隐式全局变量
+console.log(b); //这里可以访问到下面得隐式全局变量
+console.log(a); //这里访问不到函数里的局部变量,没声明没赋值会报错
+function f1() {
+	var a = b = c = 9; 
+	拆解:
+	var a;
+	a = 9; //局部变量
+	b = 9; //隐士全局变量
+	c = 9; //隐士全局变量
+	// 所以下面结果为9
+	console.log(a); //结果为9
+	console.log(b); //结果为9
+	console.log(c); //结果为9
+}
+```
+
+## 对象
+
+```
+对象:有属性和方法,具体指的某个事物
+面向对象的特性:封装,继承,多态(抽象性);
+对象的特点:特征和行为
+特征:属性
+行为:方法
+
+对象:是一组无序属性的集合(数组有顺序(下标))
+属性的值可以是任何类型
+function Dog(name) {
+	this.name(name);
+};
+
+js是一门什么样的语言:
+是一门解释性语言			(解释一行执行一行)
+是一门脚本语言				 (运行在浏览区客户端的一门语言)
+是一门弱类型语言		 	(声明变量都用var)
+是一门基于对象的语言
+是一门动态类型的语言:
+1.代码(变量)只有执行到这一行的时候,才知道这个变量中到底存储的是什么,如果是对象,就有对象的属性的值和方法,如果是变量就是这个变量的值 
+2.对象没有什么,只要点了,通过点语法,那么就可以为对象添加属性和方法
+
+点语法
+对象.名字 = 值;
+对象.方法名字 = 函数;
+
+创建对象的方式:
+1. 调用系统的构造函数创建对象  
+var obj = new Object ();
+2. 自定义构造函数的方式创建对象 
+var obj = new 自定义构造函数名(首字母大写)();
+3. 字面量的方式创建对象
+var obj = {};
+```
+
+## 创建对象的三种方式
+
+```
+1.调用系统的构造函数创建对象     
+var 变量名 = new Object();  //Object 是系统的构造函数
+```
+
+```
+var obj = new Object();
+// 对象有特征---属性和行为----方法
+// 添加属性: 对象.名字=值;
+obj.name = "小苏";
+obj.age = 18;
+obj.sex = "女";
+//添加方法: 对象.名字=函数;
+obj.eat = function () {  
+	console.log("我喜欢吃油炸榴莲");
+};
+obj.play = function () {
+	console.log("我喜欢玩飞机");
+};
+
+console.log(obj.name); //获取并输出属性;
+console.log(obj.age); //获取并输出;
+console.log(obj.sex); //获取并输出;
+
+// 方法的调用
+obj.eat(); //调用吃
+obj.play(); //调用玩//
+```
+
+```
+
+自定义构造函数创建对象,我要自己定义一个构造函数---->自定义构造函数,创建对象
+函数和构造函数的区别:名字是不是大写(首字母大写)
+
+2.自定义构造函数创建对象
+function 构造函数名首字母大写(参数) {
+	this.属性 = 值;
+	this.属性 = 值;
+	this.方法 = function () {
+		方法体;
+	}
+}
+
+var 变量名 = 构造函数名首字母大写(传入参数);		//创建对象(实例化对象并初始化)
+变量名.方法();
+```
+
+```
+3.字面量方式创建对象
+var obj = {}; //此时是空对象
+	obj.name = "小明";
+	obj.age = 19;
+	obj.sex = "男";
+	obj.sayHi = function () {
+	console.log("你好呀");
+}
+obj.sayHi();
+
+//优化写法:舍去了前面的对象名,等号用冒号代替,末尾用逗号连接----->这是一个整体
+var obj1 = {
+	name: "小明",
+	age: 18,
+	food: "烤鸡",
+	sayHi: function () {
+		console.log("你好,我是" + this.name)
+	},
+	eat: function () {
+		console.log("今天吃了" + this.food)
+	}
+};
+obj1.sayHi();
+obj1.eat();
+
+字面量创建对象的缺陷:一次性的对象(这个对象一开始就写死了)这种方法不好改值,要改值只能到源码里去改
+```
+
+### 自定义构造函数创建对象做了几件事(new)
+
+```
+new的执行过程:
+1.在内存中开辟空间(申请一块空闲的空间),储存创建的新的对象
+2.把this设置为当前对象
+3.设置对象的属性和方法的值
+4.把this这个对象返回
+```
+
+## 总结JS语言特点
+
+```
+js是一门什么样的语言:
+是一门解释性语言			(解释一行执行一行)
+是一门脚本语言				 (运行在浏览区客户端的一门语言)
+是一门弱类型语言		 	(声明变量都用var)
+是一门基于对象的语言
+是一门动态类型的语言:
+1.代码(变量)只有执行到这一行的时候,才知道这个变量中到底存储的是什么,如果是对象,就有对象的属性的值和方法,如果是变量就是这个变量的值 
+2.对象没有什么,只要点了,通过点语法,那么就可以为对象添加属性和方法
+
+点语法
+对象.名字 = 值;
+对象.方法名字 = 函数;
+```
+
+## 获取该变量(对象)属于什么类型的
+
+```
+语法:
+变量 instanceof 类型的名字 -------> 返回的结果是布尔类型,true就是这种类型,false就不是这种类
+	
+在当前对象的方法中是可以访问当前这个对象的属性的值的
+在当前的对象方法中,可以使用this关键字代表当前的对象
+```
+
+## 工厂模式创建对象
+
+```
+过程:创建一个函数,在函数里创建一个对象,添加属性,添加方法,最后返回这个对象,定义一个变量接受这个对象,此时这个变量就是一个对象,然后就可以调用对象的方法
+每当调用一次函数就创建一个对象,用函数传参的方式
+
+function createObject(name, age) { //传参   
+	var obj = new Object();   //这里创建两个变量接收传进来的参数   
+	obj.name = name;   
+	obj.age = age;   
+	obj.sayHi = function () { //添加一个方法      
+		console.log("大家好,我叫" + this.name + "," + "我今年:" + this.age + "了");   
+};   
+	return obj; //返回这个对象
+};
+
+	// 创建一个人的对象
+	var per1 = createObject("小芳", 18); //定义参数传进去并接收
+	per1.sayHi();
+	
+	// 创建另一个人的对象
+	var per2 = createObject("小红", 20); //定义参数传进去并接收
+	per2.sayHi();
+	
+	//这样就实现了工厂模式创建不同对象
+```
+
+## 获取对象属性的另外写法
+
+```
+function Person(name, age, sex) {  
+	this.name = name;   
+	this.age = age;   
+	this.sex = sex;   
+	this.play = function () {      
+		console.log("喜欢玩游戏");   
+	}
+}
+var per = new Person("小红", 18, "女"); //创建一个对象并传值并接收返回值
+//	改值:
+// per.name = "小明";
+// 另一种写法
+//per["name"] = "小单";
+
+//	访问一个对象的属性不一定使用.语法
+//	还可以console.log(per["name"]); //可以使用中括号的方式,里面是双引号写属性的名字
+
+//	调用对象的方法可以这样写
+per.play();
+per["play"]();
+```
+
+## json格式的数据
+
+```
+json数据的格式:一般都是成对的,是键值对
+json也是对象,数据都是成对的,一般json格式的数据无论是键还是值都是用双引号扩起来的
+如果看到对象的属性和值都有双引号,那就是json格式的对象
+
+var json = {
+	"name": "小明",
+	"age": "10",
+	"sex": "男",
+};
+// 这个对象里面没有索引,所以不能用for循环遍历的
+console.log(json.name); //这是可以的 
+console.log(json["name"]); //这也是可以的
+// 还可以 
+var key = "name"; 			//定义一个变量来接收这个属性名
+//var key = "height"; 		//定义一个变量来接收这个属性名  但是由于Js是一门动态类型的语言,没有什么								  就定义什么,所以赋值undefined
+console.log(json[key]); 	//这也是可以的
+```
+
+## 遍历对象for-in
+
+```
+for循环不能遍历对象,但是for-in可以
+
+for (var key in json) { 			//定义一个变量key接受对象里的属性名,属性名里存储着属性值  
+	console.log(key + "属性的值为==>" + json[key]);
+}
+
+key是一个变量,这个变量中存储的是对象的属性名字
+```
+
+## 简单数据类型和复杂数据类型
+
+```
+原始数据类型: number string boolean undefined null object 
+其中简单类型(值类型) number string boolean  
+复杂类型(引用类型): Object 
+空类型: undefined null
+```
+
+```
+值类型的值在哪一块空间中储存?
+栈中储存
+
+引用类型的值在哪一块空间中存储?
+在栈和堆中存储:一个存该对象的地址,一个存着对象数据
+```
+
+```
+☆值类型之间传递,传递的是值 
+
+function f1(x) {              		// 3.这个变量中存储的是传入的10	   
+	x = 100;                 	    // 4.这时x的值又改为100          
+} 
+var num = 10;						// 1.先执行这段代码,在栈中申请一块空间存储10
+f1(num);							// 2.然后调用这个函数时,将10赋值一份传入函数里的X变量,此时在栈										中开辟了一个x空间,赋值为10	
+console.log(num) //10             	// 5.所有num的值和X的改变没有关系
+```
+
+```
+☆引用类型的之间传递的是地址 
+var obj = {               			 //1.此时obj这个(变量)存储在栈中,值为地址
+	name : "小明"          	        //2.这个对象属性存储在堆中
+}; 
+function f1(x) {   
+	x.name = "小红"; 			    	//5.这个函数参数里的x参数对象指向了0X120并更改了属性值
+} 
+console.log(obj.name);               //3.打印这个属性时,指向了0X120这个地址
+f1(obj);               				 //4.此时将obj当中存储的地址0X120这个地址复制给了x
+console.log(obj.name);    			 //6.此时打印结果为小红(堆中的值被更改了)
+```
+
+## 内置对象
+
+```
+js有三大对象
+1. 内置对象-------------js系统自带的对象
+2. 自定义对象-----------自定义构造函数创建的对象
+3. 浏览器对象-----------BOM
+```
+
+### 内置对象
+
+```
+Math			数字对象
+Date			时间对象
+String			字符串对象
+Array			数组对象
+Object			对象
+
+如何验证变量是不是一个对象
+console.log(Array instanceof Object);    //验证Array是不是对象---系统内置对象
+var obj = {};
+console.log(obj instanceof Object);      //验证obj是不是对象---自定义对象		
+```
+
+### Math对象
+
+```
+实例对象:通过构造函数创建出来的,实例化对象
+静态对象:不需要创建,直接就是一个对象,方法(静态方法)直接通过这个对象名字.调用
+实例方法必须通过实例方法去调用
+静态方法必须通过大写的对象调用
+
+Math对象操作的是数字
+```
+
+#### Math常用属性及方法
+
+```
+Math.PI 					//圆周率
+Math.abs(值) 			   //获取绝对值
+Math.ceil 					//向上取整
+Math.floor 					//向下取整
+Math.max 					//找出一串数字中的最大值
+Math.min 					//找出一串数字中的最小值
+Math.pow 					//计算一个数值的平方
+Math.sqrt 					//计算一个数值的平方根
+Math.random 				//返回一个随机数(重要)
+//返回的是一个0到1之间的伪随机数,乘以100是让这个数字变大,需要在多少之内,就乘以多少+1
+
+//返回一个100以内的随机数字
+console.log(parseInt(Math.random() * 100 + 1));
+```
+
+### Date对象
+
+```
+Date时间
+创建实例对象 ----- 创建这个实例对象时如果不传值,返回的是当前服务器时间
+
+var time = new Date();
+//返回的时间是毫秒值 从1997年1月1日开始
+var dd = Date.now();
+console.log(dd);
+
+
+var time = new Date();
+//获取年份
+console.log(time.getFullYear());
+//获取月份----美国是从0月开始算,所以需要加1 
+console.log(time.getMonth() + 1);
+//获取一周的第几天
+console.log(time.getDay());
+//获取这个月的第几天(几号)
+console.log(time.getDate());
+//获取小时
+console.log(time.getHours());
+//获取分钟
+console.log(time.getMinutes());
+//获取秒数
+console.log(time.getSeconds());
+```
+
+#### Date对象常用属性及方法
+
+```
+var time = new Date();
+time.getFullYear(); 					//获取年
+time.getMonth(); 						//获取月(从0开始)
+time.getDate(); 						//获取日
+time.getHours(); 						//获取小时
+time.getMinutes(); 						//获取分钟
+time.getSeconds(); 						//获取秒钟
+time.getDay(); 							//获取星期(从0开始)
+time.toDateString(); 					//英文格式
+time.toLocaleDateString(); 				//数字格式
+time.toTimeString(); 					//24小时格式时间
+time.toLocaleTimeString(); 				//12小时格式时间
+time.valueOf(); 						//毫秒
+
+// 毫秒特殊写法用于兼容不支持的浏览器
+var time = + new Date();
+console.log(time);
+```
+
+### String对象
+
+```
+String 字符串对象
+
+string ---------(小写)字符串类型 基本类型  可以看成是一个由字符组成的数组,但是js中没有字符
+String ---------(大写)字符串类型 引用类型  可以看成是一个对象
+
+结论:
+字符是用一个单引号括起来的
+但是在js中字符串可以使用单引号,也可以使用双引号
+因为字符串可以看成数组,所以可以用for循环遍历
+字符串的值看起来改变了,那时因为指向改变了,并不是指真的改变了
+
+字符串特性:不可变性:字符串的值是不能改变的
+```
+
+#### String对象常用属性及方法
+
+```
+字符串的常用方法:
+.length                                 //获取长度
+.chaAt(索引)                         	  //返回字符串指定位置的字符,超出索引结果是空字符串(静态方法)
+.fromChat(值,值,值)                      //返回一个ascii编码的字符串 
+.concat(字符串1,字符串2,字符串3)            //返回一个拼接的字符串
+.indexOf(要找的字符串,从第几个下标开始找)     //查找并返回一个指定的字符串的下标位置,没找到就返回-1
+.lastIndexOf(要找的字符串)                 //从后往前查找并返回一个指定的字符串的下标位置,但是索引												还是从前往后的方式,没找到就返回-1
+.replace(原来的字符串,要替换的字符串)         //用来替换字符串
+.slice(开始的下标,停止的下标)                //截取字符串并返回截取的字符串
+.split("要干掉的字符串","切割的个数")         //返回切割后的字符串
+.substr(开始截取的下标,截取的个数(可以不写))   //返回一个指定开始位置和个数的截取的字符串
+.substring(开始截取的下标,结束的下标)         //返回一个指定开始位置和结束位置的字符串(不包含结束位置)
+.toLowerCase() 
+.toLocaleLowerCase()                      //字符串转小写
+.toUpperCase()   
+.toLocaleUpperCase()                      //字符串转大写
+.trim()                                   //切掉字符串两端的空格
+```
+
+### Array对象
+
+```
+创建数组的方式
+1.构造函数
+var arr1 = new Array();
+2.字面量 
+var arr2 = [];
+```
+
+#### Array对象常用的属性及方法
+
+```
+Array.isArray(变量或者对象)  也可以使用instanceof关键字        //判断这个对象是不是数组类型
+.concat(数组1,数组2,数组3)								  //拼接数组
+ 
+.every(函数 function(参数1,参数2,参数3))					 //判断数组中的元素是否满足某种条件,它要传入一个函数,返回值是布尔类型,函数作为参数使用,函数中有三个参数,第一个参数是元素的值,第二个是参数的索引,第三个参数是原来的数组(一般情况下不用),如果这个数组中每个元素的的值都符合条件,这返回true
+.filter(函数  function(参数1,参数2,参数3))					 //筛选判断这个数组中符合条件的元素并															返回成新的一个数组
+.forEach(函数  function(参数1,参数2,参数3))					 //代替for循环遍历数组
+.indexOf(元素的值)											//查找数组中指定元素的下标位置,没找																到返回-1
+.join("插入的间隔符")										   //向数组内容插入一个间隔符----返回																值是字符串类型
+.map(函数或者方法)										   //数组中每一个元素都要执行这个函数,														把执行后的结果重新全部放在一个新的数组中
+.reverse()												   //反转数组
+.slice(开始的下标,结束的下标)						 			//截取数组中的某一段元素,返回截取的															数值放在一个新的数组中,不包括终止下标
+.splice(插入的位置(下标),删除的个数(一般为0),插入的元素之)		 //往数组任意位置插入,删除,替换一个新															的元素并返回这个数组
+
+.sort(function (a, b) {									   //排序数组用的:固定写法
+	if (a > b) {
+		return 1;
+	} else if (a == b) {
+		return 0;
+	} else {	
+		return -1;
+	};						
+});			
+
+四个必须要记住的方法
+原数组.unshift()						//追加一个新的元素进元素组第一位---返回值是插入后的长度	  
+原数组.push()							//追加一个新的元素进原数组最后一位---返回值是插入后的长度	
+原数组.shift()							//删除数组第一位元素并返回这个删除的元素
+原数组.pop()							//删除数组中最后一个元素并返回删除的值
+```
+
+## 基本包装类型
+
+```
+普通变量不能直接调用属性或者方法
+对象可以直接调用属性和方法
+
+基本包装类型本身是基本类型,但是在执行代码的过程中,如果这种类型的变量调用了属性或者方法,那么这种类型就不再是基本类型了,而是基本包装类型,那么这个变量也不是普通变量了,而是基本包装类型对象
+```
+
+```
+var num = 10; 							 //普通变量;
+num.split(); 						 	 //普通变量调用方法  结果为报错
+var str = "hello";
+var result = str.replace("ll", "HH"); 	 //此时内部str变量变成了对象
+
+var num1 = 10; 							 //此时是基本类型  Number
+console.log(num1.toString()); 			 //当他调用这个方法之后就变成了基本包装类型
+
+如果是一个对象&&true,那么结果是true;
+var flag = new Boolean(false);
+var result = flag && true;
+
+如果是一个true&&对象,那么结果是对象
+var flag = new Boolean(false);
+var result = true && flag;
+
+var num2 = 10;
+var num3 = String(num2);				 //这里是转换,没有new 是类型转换
+var num3 = new Number(num2); 			 //这里new了,基本包装类型
+```
+
+# JavaScript中级DOM篇
+
+## DOM的概念
+
+```
+BOM(Browser Object Model) 是指浏览器对象模型，浏览器对象模型提供了独立于内容的、可以与浏览器窗口进行互动的对象结构。
+
+BOM由多个对象组成，其中代表浏览器窗口的Window对象是BOM的顶层对象，其他对象都是该对象的子对象。
+
+js分为三个部分:
+ECMAScript标准				    js的基本语法
+DOM:	Documents Object Model   文档对象模型 ----操作页面元素
+BOM:	Browser Object Model 	 浏览器对象模型 ----操作的是浏览器
+
+文档:把整个html文件看成是一个文档,由于万物皆对象,所以把这个文档看成一个对象XMl文件也是一个文档
+
+HTML:展示信息
+XML:侧重存储数据
+
+html文件可以看成是一个文档,那么这个文档就可以看成一个对象,文档中的所有的标签都可以看成是一个对象
+页面中所有的标签都是一个元素(element),每个元素都可以看成是一个对象
+标签可以嵌套,标签中有标签,元素中有元素
+
+html页面中都有一个根标签---html---也叫根元素 
+页面中的有一个根元素(标签--html),里面有很多的元素(有很多的标签,有很多的对象)
+
+文档:一个页面就是一个文档
+元素(element):页面中所有的标签都是元素,元素都可以看成是对象
+节点(node):页面中所有的内容都是节点:标签,属性,文本
+root:根
+
+页面就是文档--document,文档中有根元素:html
+由文档及文档中所有的元素(标签)组成的一个树形结构图,叫树状图(DOM树)
+
+DOM对象----通过dom方式获取元素得到的对象
+页面中的顶级对象: document
+```
+
+### DOM获取元素
+
+```
+获取元素的方式
+根据id获取
+document.getElementById("id名")
+根据标签名获取
+document.getElementsByTagName("标签的名字")
+根据name属性的值获取元素(表单标签)
+document.getElementsByName("name属性的值")
+根据类样式的名字获取
+document.getElementsByClassName("类样式的名字")
+根据选择器获取一个
+document.querySelector("#id的名字") 
+根据选择器获取多个
+document.querySelectorAll(".类样式的名字") 
+
+//获取body
+console.log(document.body)//获取的是元素
+//获取title标签的值
+console.log(document.title)//标签中的值
+//给title标签添加值
+document.title = "前端学习";
+//获取html
+console.log(document.documentElement);
+```
+
+### 操作基本标签的属性
+
+```
+操作基本标签的属性scr,title,alt,href,id 
+操作表单标签的属性name,value,type,checked,selected,disabled,readonly
+
+元素样式操作
+对象.style.属性=值
+对象.className=值
+```
+
+### 设置标签内容
+
+```
+设置标签中的文本内容,应该使用textContent属性,谷歌,火狐,支持,IE8不支持
+设置标签中的文本内容,应该使用innerText属性,谷歌,火狐,支持,IE8都支持 是IE8的标准属性
+
+获取标签中的文本内容
+console.log(my$("dv").innerText);
+console.log(my$("dv").textContent);
+
+innerText和innerHTML的区别:
+都可以设置标签的文本内容
+如果要是值标签和内容推荐使用innerHTMl的方式
+如果要获取标签中文本使用innerText, 也可以使用innerHTML
+如果想要获取的是有标签的文本使用innerHTMl
+```
+
+### 设置元素的样式
+
+```
+设置元素的样式
+对象.style.属性 = 值;
+对象.className = 值;
+对象.style.属性 = "值";
+```
+
+### 自定义属性
+
+```
+自定义标签: 标签原本没有这个属性, 为了存储数据, 自己添加的属性
+
+自定义属性无法通过DOM的方式设置或者获取只能使用:   
+获取
+对象.getAttribute("自定义属性名字"); 			 //获取自定义属性的值
+设置
+对象.setAttribute("自定义属性的名字", "值"); 		//设置自定义属性
+移除
+对象.removeAttribute("属性的名字");			   //删除自定义属性
+```
+
+### 事件
+
+```
+HTML事件是发生在 HTML 元素上的事情
+事件:一件事有事件源,触发和响应
+事件三要素:事件源,触发,响应
+```
+
+### this关键字
+
+```
+如果是在当前的元素的事件中使用,那么this就是当前的对象
+```
+
+## 节点
+
+```
+节点的属性:作用:为了将来获取很多的节点,得到节点中的标签(元素),识别节点中的标签的元素
+节点的类型:1标签节点,2属性节点,3文本节点
+
+nodeType---1---标签节点,2---属性节点,3---文本节点
+nodeName---标签节点--大写的标签名字,如果是属性节点---小写的属性名字,文本节点---#text
+nodeValue---标签---null,属性---属性的值,文本---文本内容
+
+判断一个节点是不是标签:if (node.nodeType == 1 && node.nodeName =="P")
+
+凡是获取节点的代码在谷歌和火狐得到的都是相关节点
+凡是获取元素的代码在谷歌和火狐得到的都是相关元素
+
+从子节点和兄弟节点开始
+凡是获取节点的代码在IE8中得到的是元素
+凡是获取元素的相关代码,在IE8中得到的是undefined----元素的代码,IE8中不支持
+```
+
+### 获取节点及元素
+
+```
+console.log(my$("uu").parentNode)			   // 1.获取当前节点的父级节点console.log(my$("uu").parentElement);		  // 2.获取当前节点的的父级元素console.log(my$("uu").childNodes);		 	  // 3.获取当前节点的子级节点console.log(my$("uu").children);		 	     // 4.获取当前节点的子级元素console.log(my$("uu").firstChild);		 	    // 5.获取当前节点的第一个子级节点console.log(my$("uu").firstElementChild);	  // 6.获取当前节点的第一个子级元素console.log(my$("uu").lastChild);		        // 7.获取当前节点的最后一个子级节点console.log(my$("uu").lastElementChild);       // 8.获取当前节点的最后一个子级元素console.log(my$("uu").previousSibling);        // 9.获取当前节点的前一个兄弟节点
+console.log(my$("uu").previousElementSibling); // 10.获取当前节点的前一个兄弟元素
+console.log(my$("uu").nextSibling);   		   // 11.获取当前节点的后一个兄弟元节点
+console.log(my$("uu").nextElementSibling);     // 12.获取当前节点的后一个兄弟元元素
+```
+
+## 元素的创建
+
+```
+1.document.write("标签代码及内容");  			  //如果在页面加载完毕后创建,那么页面中的内容会被覆盖
+2.父级对象.innerHTMl="标签代码及内容";
+3.document.createElement("标签名字"); 			//得到的是一个元素对象  
+父级元素.appendChild(子级元素对象); 				//将加入新创建的元素加入 
+父级元素.inerstBefore(新的子级对象,参照的子级对象);  
+
+移除子元素  
+父级元素.removeChild(要干掉的子级元素对象)
+
+总结:
+1.createElement---创建元素
+2.appendChild---追加元素
+3.insertBefore---插入元素
+4.removeChild---删除子元素
+```
+
+## 事件绑定
+
+```
+三种方式:
+1.对象.on事件名字=事件处理函数         缺陷:如果是多个相同事件注册用这种方式,最后一个执行,之前的被覆盖了
+
+2.对象.addEventListener("没有on的事件名字",事件处理函数名,false);
+
+3.对象.attachEvent("有on的事件名字",事件处理函数名)   				//用于兼容IE
+
+总结绑定事件的区别:
+addEventListener();
+attachEvent();
+相同点: 都可以为事件绑定函数
+
+区别:
+1.方法名不一样
+2.参数个数不一样
+3.addEventListener  			谷歌,火狐,IE11支持,IE8不支持
+  attachEvent       			谷歌,火狐,IE11不支持,IE8支持
+4.this不同
+addEventListener 			   	中this是当前绑定事件的对象
+attachEvent      				中this是window
+5.事件名不同
+addEventListener				事件的类型(事件的名字)没有on
+attachEvent						事件的类型(事件的名字)有on
+```
+
+## 解绑事件
+
+```
+注意:用什么方式绑定事件,就应该用对应的方式解绑事件
+1.解绑事件
+对象.on事件名字=事件处理函数 ----> 绑定事件
+对象.on事件名字=null ----> 解绑事件
+2.解绑事件
+对象.addEventListener("没有on的事件名",命名函数,false) -----> 绑定事件
+对象.removeEventListener("没有on的事件名",命名函数,false) ----->解绑事件
+3.解绑事件
+对象.attachEvent("on类型事件",事件处理函数)----->绑定事件
+对象.detachEvent("on类型事件",事件处理函数)----->解绑事件
+```
+
+## 事件冒泡
+
+```
+事件冒泡:多个元素嵌套,有层次关系,这些元素都注册了相同事件,如果里面的元素的事件触发了,外面的的该事件自动触发
+
+如何阻止事件冒泡:
+window.event.cancelBubble = true; 				IE特有,谷歌支持,火狐不支持
+stopPropagation(); 								谷歌,火狐支持,IE不支持
+```
+
+## 事件监听
+
+```
+为按钮添加点击事件 
+addEventListener()
+参数1:事件的类型---事件的名字但是没有on
+参数2:事件处理函数---函数(命名函数,匿名函数)
+参数3:布尔类型,目前就写false
+```
+
+## 事件总结/监听/冒泡 /阻止
+
+```
+事件有三个阶段
+1.事件捕获阶段:从外向内
+2.事件目标阶段:最开始选择
+3.事件冒泡阶段:从里向外
+
+事件监听
+addEventListener("没有on的事件类型",事件处理函数,控制事件冒泡或者捕获true/false)
+
+window.event.cancelBubble = true;		阻止事件冒泡 ----> 谷歌IE8支持,火狐不支持
+										window.event就是一个对象,是IE中的标准
+										
+e.stopPropagation();					阻止事件冒泡 ----> 谷歌火狐支持
+
+window.event和e都是事件参数对象,一个是IE标准,一个是火狐标准
+事件参数e在IE8中是不存在的,此时用window.event来代替
+
+addEventListener中的第三个参数是控制事件阶段的
+
+事件的阶段有三个:
+通过e.eventPhase这个属性可以知道当前的事件是什么阶段的
+如果这个属性的值是:
+1--捕获阶段
+2--目标阶段
+3--冒泡阶段
+
+一般都用冒泡阶段,很少用捕获阶段
+冒泡阶段是从里向外的
+捕获阶段是从外向内的
+
+事件对象的属性和方法
+
+- event.type 获取事件类型
+- clientX/clientY     					所有浏览器都支持，窗口位置
+- pageX/pageY       					IE8以前不支持，页面位置
+- event.target || event.srcElement 		用于获取触发事件的元素
+- event.preventDefault() 				取消默认行为
+```
+
+## BOM的概念
+
+```
+浏览器中有个顶级对象 window
+页面中有个顶级对象 document
+页面中的所有的内容都是属于浏览器的,页面中的所有内容都是属于window的
+因为页面中的所有内容,都是window的,所以就不用写的
+
+jquery中顶级对象:$  ==>jquery
+```
+
+### 系统对话框
+
+```
+window.alert()      文字弹窗
+window.prompt()		带输入框弹窗
+```
+
+### 页面加载事件
+
+```
+window可以省略,onload这个事件很重要
+onload事件----页面加载完成后
+
+页面加载完成后再执行
+window.onload = function () {
+    document.getElementById("btn").onclick = function () {
+        alert("你好呀");
+    }
+}
+
+// 拓展事件-----页面关闭后才触发的弹窗事件
+window.onunload = function () {
+    alert("哈哈");
+}
+// 拓展事件-----页面关闭之前触发的弹窗事件
+window.onbeforeunload = function () {
+    alert("嘿嘿");
+}
+```
+
+### window包含对象
+
+#### location对象
+
+```
+Location 对象包含有关当前 URL 的信息
+Location 对象是 Window 对象的一个部分，可通过 window.location 属性来访问
+```
+
+```
+console.log(window.location);
+结果:
+console.log(window.location.hash);				//地址栏上#及后面的内容
+console.log(window.location.host);				//主机名及端口号
+console.log(window.location.hostname);			//主机名
+console.log(window.location.pathname);			//文件的路径---相对路径
+console.log(window.location.port);				//端口号
+console.log(window.location.protocol);			//协议
+console.log(window.location.search);			//搜索的内容
+```
+
+#### location对象方法
+
+```
+onload = function () {    
+document.getElementById("btn").onclick = function () {        
+	//设置跳转的页面的地址        
+	location.href = "http://www.baidu.com"; 	 //属性----->必须记住     			
+	location.assign("http://www.baidu.com"); 	 //方法 两者相同      
+	location.reload(); 							 //重新加载,刷新        
+	location.replace("http://www.baidu.com");    //这种方式没有历史记录,所以不能后退   
+	}
+}
+```
+
+#### History 对象
+
+```
+History 对象包含用户（在浏览器窗口中）访问过的 URL。
+History 对象是 window 对象的一部分，可通过 window.history 属性对其进行访问
+```
+
+#### History 对象属性方法
+
+```
+window.history.length				//返回浏览器历史列表中的URL数量
+
+window.history.go(); 				//加载history列表中的某个具体页面
+window.history.back(); 				//加载history列表中的前一个URL
+window.history.forward(); 			//加载history列表中的下一个URL
+```
+
+####  Navigator对象
+
+```
+//通过userAgent属性获取当前浏览器的类型
+console.log(window.navigator.userAgent);
+//通过platform属性判断浏览器所在的系统平台类型
+console.log(window.navigator.platform);
+```
+
+#### Screen 对象
+
+```
+window.availHeight					//返回屏幕的高度（不包括Windows任务栏）
+window.availWidth					//返回屏幕的宽度（不包括Windows任务栏）
+window.height						//返回屏幕的总高度
+window.width						//返回屏幕的总宽度
+```
+
+
+
+### 定时器
+
+```
+BOM中有两个定时器定时器:
+setInterval(参数1,参数2)
+参数1:函数
+参数2:时间--毫秒----1000毫秒=1秒
+返回值:该定时器的id
+window.clearInterval(定时器的id);			//清除定时器
+
+setTimeout(函数,时间);
+参数1:函数
+参数2:定时器的时间
+返回值:该定时器的id
+window.clearTimeout(定时的id);				//清除一次性定时器
+
+执行过程:页面加载完毕后,过了一秒,执行一次函数的代码,又过了一秒,再执行函数
+返回值就是定时器的id值
+```
+
+### 三大系列offset/scroll/client
+
+```
+offset系列:
+元素的样式是无法通过对象.style.属性来获取(样式在内联样式中可以获取到)
+offsetLeft:元素距离左边的距离
+offsetTop:元素距离顶部的距离
+offsetWidth:元素的宽度 (包括边框)
+offsetHeight:元素的高度 (包括边框)
+```
+
+```
+scroll系列:卷曲
+scrollWidth:元素中内容的实际的宽度(没有边框),如果没有内容就是元素的宽度
+scrollHeight:元素中内容的实际的高度(没有边框),如果没有内容就是元素的高度
+scrollLeft: 向左卷曲出去的距离
+scrollTop: 向上卷曲出去的距离
+```
+
+```
+client系列:元素可视区域的大小
+clientWidth:元素可是区域的宽,不包括边框
+clientHeight:元素可是区域的高,不包括边框
+clientLeft:左边框的宽度
+clientTop:上边框的宽度
+clientX:可视区域的横坐标
+clientY:可视区域的纵坐标
+```
+
+```
+pageXOffset 和 pageYOffset 属性返回文档在窗口左上角水平和垂直方向滚动的像素
+
+pageXOffset 设置或返回当前页面相对于窗口显示区左上角的 X 位置
+pageYOffset 设置或返回当前页面相对于窗口显示区左上角的 Y 位置
+
+pageXOffset 和 pageYOffset 属性相等于 scrollX 和 scrollY 属性
+```
+
+
+
+### 获取元素计算后的样式属性的值
+
+```
+window.getComputedStyle(element, null)[style]		//谷歌,火狐支持
+window.currentStyle[style]							//IE8支持
+window.currentStyle.left
+类似element.style
+```
+
+
+
+```
+function getStyle(element, attr) {   
+	return window.getComputedStyle ? window.getComputedStyle(element, null)[attr] : element.currentStyle[attr] || 0;
+}
+```
+
+# 事件查询大全
+
+| 鼠标事件               | 描述                                                         |
+| ---------------------- | ------------------------------------------------------------ |
+| **onClick**            | 鼠标点击事件                                                 |
+| **onDblClick**         | 鼠标双击事件                                                 |
+| **onMouseDown**        | 鼠标上的按钮被按下                                           |
+| **onMouseUp**          | 鼠标按下后，松开时激发的事件                                 |
+| **onMouseOver**        | 鼠标移动到某对象范围的上方时触发的事件                       |
+| **onMouseMove**        | 鼠标移动时触发的事件                                         |
+| **onMouseOut**         | 鼠标离开某对象范围时触发的事件                               |
+| **onKeyPress**         | 键盘上的某个键被按下并且释放时触发的事件                     |
+| **onKeyDown**          | 键盘上某个按键被按下时触发的事件                             |
+| **onKeyUp**            | 键盘上某个按键被按放开时触发的事件                           |
+|                        |                                                              |
+| **页面相关事件**       | **描述**                                                     |
+| **onAbort**            | 图片在下载时被用户中断                                       |
+| **onBeforeUnload**     | 当前页面的内容将要被改变时触发的事件                         |
+| **onError**            | 捕抓当前页面因为某种原因而出现的错误，如脚本错误与外部数据引用的错误 |
+| **onLoad**             | 页面内空完成传送到浏览器时触发的事件，包括外部文件引入完成   |
+| **onMove**             | 浏览器的窗口被移动时触发的事件                               |
+| **onResize**           | 当浏览器的窗口大小被改变时触发的事件                         |
+| **onScroll**           | 浏览器的滚动条位置发生变化时触发的事件                       |
+| **onStop**             | 浏览器的停止按钮被按下时触发的事件或者正在下载的文件被中断   |
+| **onUnload**           | 当前页面将被改变时触发的事件                                 |
+|                        |                                                              |
+| **表单相关事件**       | **描述**                                                     |
+| **onBlur**             | 当前元素失去焦点时触发的事件                                 |
+| **onChange**           | 当前元素失去焦点并且元素的内容发生改变而触发的事件           |
+| **onFocus**            | 当某个元素获得焦点时触发的事件                               |
+| **onReset**            | 当表单中RESET的属性被激发时触发的事件                        |
+| **onSubmit**           | 一个表单被递交时触发的事件                                   |
+|                        |                                                              |
+| **滚动字幕事件**       | **描述**                                                     |
+| **onBounce**           | 在Marquee内的内容移动至Marquee显示范围之外时触发的事件       |
+| **onFinish**           | 当Marquee元素完成需要显示的内容后触发的事件                  |
+| **onStart**            | 当Marquee元素开始显示内容时触发的事件                        |
+|                        |                                                              |
+| **编辑事件**           | **描述**                                                     |
+| **onBeforeCopy**       | 当页面当前的被选择内容将要复制到浏览者系统的剪贴板前触发的事件 |
+| **onBeforeCut**        | 当页面中的一部分或者全部的内容将被移离当前页面[剪贴]并移动到浏览者的系统剪贴板时触发的事件 |
+| **onBeforeEditFocus**  | 当前元素将要进入编辑状态                                     |
+| **onBeforePaste**      | 内容将要从浏览者的系统剪贴板传送[粘贴]到页面中时触发的事件   |
+| **onBeforeUpdate**     | 当浏览者粘贴系统剪贴板中的内容时通知目标对象                 |
+| **onContextMenu**      | 当浏览者按下鼠标右键出现菜单时或者通过键盘的按键触发页面菜单时触发的事件 [试试在页面中的<body>中加入onContentMenu="return false"就可禁止使用鼠标右键了] |
+| **onCopy**             | 当页面当前的被选择内容被复制后触发的事件                     |
+| **onCut**              | 当页面当前的被选择内容被剪切时触发的事件                     |
+| **onDrag**             | 当某个对象被拖动时触发的事件 [活动事件]                      |
+| **onDragDrop**         | 一个外部对象被鼠标拖进当前窗口或者帧                         |
+| **onDragEnd**          | 当鼠标拖动结束时触发的事件，即鼠标的按钮被释放了             |
+| **onDragEnter**        | 当对象被鼠标拖动的对象进入其容器范围内时触发的事件           |
+| **onDragLeave**        | 当对象被鼠标拖动的对象离开其容器范围内时触发的事件           |
+| **onDragOver**         | 当某被拖动的对象在另一对象容器范围内拖动时触发的事件 [活动事件] |
+| **onDragStart**        | 当某对象将被拖动时触发的事件                                 |
+| **onDrop**             | 在一个拖动过程中，释放鼠标键时触发的事件                     |
+| **onLoseCapture**      | 当元素失去鼠标移动所形成的选择焦点时触发的事件               |
+| **onPaste**            | 当内容被粘贴时触发的事件                                     |
+| **onSelect**           | 当文本内容被选择时的事件                                     |
+| **onSelectStart**      | 当文本内容选择将开始发生时触发的事件                         |
+|                        |                                                              |
+| **数据绑定**           | **描述**                                                     |
+| **onAfterUpdate**      | 当数据完成由数据源到对象的传送时触发的事件                   |
+| **onCellChange**       | 当数据来源发生变化时                                         |
+| **onDataAvailable**    | 当数据接收完成时触发事件                                     |
+| **onDatasetChanged**   | 数据在数据源发生变化时触发的事件                             |
+| **onDatasetComplete**  | 当来子数据源的全部有效数据读取完毕时触发的事件               |
+| **onErrorUpdate**      | 当使用onBeforeUpdate事件触发取消了数据传送时，代替onAfterUpdate事件 |
+| **onRowEnter**         | 当前数据源的数据发生变化并且有新的有效数据时触发的事件       |
+| **onRowExit**          | 当前数据源的数据将要发生变化时触发的事件                     |
+| **onRowsDelete**       | 当前数据记录将被删除时触发的事件                             |
+| **onRowsInserted**     | 当前数据源将要插入新数据记录时触发的事件                     |
+|                        |                                                              |
+| **外部事件**           | **描述**                                                     |
+| **onAfterPrint**       | 当文档被打印后触发的事件                                     |
+| **onBeforePrint**      | 当文档即将打印时触发的事件                                   |
+| **onFilterChange**     | 当某个对象的滤镜效果发生变化时触发的事件                     |
+| **onHelp**             | 当浏览者按下F1或者浏览器的帮助选择时触发的事件               |
+| **onPropertyChange**   | 当对象的属性之一发生变化时触发的事件                         |
+| **onReadyStateChange** | 当对象的初始化属性值发生变化时触发                           |
+
